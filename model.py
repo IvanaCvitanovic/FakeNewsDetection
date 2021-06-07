@@ -4,6 +4,7 @@ from torch import nn
 from typing import List
 import math
 import torch.nn.functional as F
+from torchtext.legacy import data, datasets, vocab
 
 class PositionalEncoding(nn.Module):
 
@@ -196,8 +197,9 @@ class CTransformer(nn.Module):
         
         self.num_tokens = vocab_size
         self.max_pool = max_pool
+        self.vocab = vocab
         if use_pretrained:
-          self.embedding = nn.Embedding.from_pretrained(vocab, freeze=freeze_emb)
+          self.embedding = nn.Embedding.from_pretrained(vocab.vectors, freeze=freeze_emb)
         else:
           self.embedding = nn.Embedding(num_embeddings = vocab_size, embedding_dim= embedding_size)
         self.positional_encodings = PositionalEncoding(d_model = embedding_size)
