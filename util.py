@@ -3,6 +3,7 @@ import torch
 import torch.nn.functional as F
 from torch import nn
 import math
+from torchtext.legacy import data, datasets, vocab
 
 def d(tensor=None):
     """
@@ -33,3 +34,15 @@ def pad_to_window_size(input_ids: torch.Tensor,
     input_ids = F.pad(input_ids, (0, padding_len), value=pad_token_id)
     return input_ids
 
+def save_vocab(vocab, path):
+    with open(path, 'w+') as f:     
+        for token, index in vocab.stoi.items():
+            f.write(f'{index}\t{token}')
+            
+def read_vocab(path):
+    vocab = dict()
+    with open(path, 'r') as f:
+        for line in f:
+            index, token = line.split('\t')
+            vocab[token] = int(index)
+    return vocab
