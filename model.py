@@ -187,7 +187,7 @@ class TransformerBlock(nn.Module):
 
 class CTransformer(nn.Module):
     
-    def __init__(self, embedding_size, num_heads, depth, max_length, vocab_size, num_classes, vocab, vocab_dic, attention_window,  use_pretrained=True, freeze_emb=False, max_pool = True, dropout = 0.25 ):
+    def __init__(self, embedding_size, num_heads, depth, max_length, vocab_size, num_classes, vocab, attention_window,  use_pretrained=True, freeze_emb=False, max_pool = True, dropout = 0.25 ):
         """
         creates a Classification transformer
 
@@ -198,7 +198,6 @@ class CTransformer(nn.Module):
         self.num_tokens = vocab_size
         self.max_pool = max_pool
         self.vocab = vocab
-        self.vocab_dic = vocab_dic
         if use_pretrained:
           self.embedding = nn.Embedding.from_pretrained(vocab.vectors, freeze=freeze_emb)
         else:
