@@ -44,6 +44,7 @@ def read_vocab(path):
     vocab = dict()
     with open(path, 'r') as f:
         for line in f:
+            line = line.strip('\n')
             index, token = line.split('\t')
             vocab[token] = int(index)
     return vocab
