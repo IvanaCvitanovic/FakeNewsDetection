@@ -37,7 +37,7 @@ def pad_to_window_size(input_ids: torch.Tensor,
 def save_vocab(vocab, path):
     with open(path, 'w+') as f:     
         for token, index in vocab.stoi.items():
-            f.write(f'{index}\t{token}')
+            f.write(f'{index}\t{token}\n')
             
 def read_vocab(path):
     vocab = dict()
