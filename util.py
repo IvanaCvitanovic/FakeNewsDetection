@@ -4,6 +4,7 @@ import torch.nn.functional as F
 from torch import nn
 import math
 from torchtext.legacy import data, datasets, vocab
+import os
 
 def d(tensor=None):
     """
@@ -37,7 +38,7 @@ def pad_to_window_size(input_ids: torch.Tensor,
 def save_vocab(vocab, path):
     with open(path, 'w+') as f:     
         for token, index in vocab.stoi.items():
-            f.write(f'{index}\t{token}\n')
+            f.write(f'{index}\t{token}' + os.linesep)
             
 def read_vocab(path):
     vocab = dict()
