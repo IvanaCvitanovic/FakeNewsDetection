@@ -20,7 +20,7 @@ def d(tensor=None):
 
 def pad_to_window_size(input_ids: torch.Tensor, 
                        one_sided_window_size: int, pad_token_id: int):
-    '''A helper function to pad tokens and mask to work with the sliding_chunks implementation of Longformer selfattention.
+    '''A helper function to pad tokens and mask to work with the sliding window implementation selfattention.
     Input:
         input_ids = torch.Tensor(bsz x seqlen): ids of wordpieces
         attention_mask = torch.Tensor(bsz x seqlen): attention mask
@@ -36,11 +36,17 @@ def pad_to_window_size(input_ids: torch.Tensor,
     return input_ids
 
 def save_vocab(vocab, path):
+    '''
+    A helper function to save the vocabulary to a txt file, used by the model
+    '''
     with open(path, 'w+') as f:     
         for token, index in vocab.stoi.items():
             f.write(f'{index}\t{token}' + os.linesep)
             
 def read_vocab(path):
+    '''
+    A helper function to load a saved vocabulary from a txt file
+    '''
     vocab = dict()
     with open(path, 'r') as f:
         for line in f:

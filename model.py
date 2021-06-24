@@ -7,7 +7,10 @@ import torch.nn.functional as F
 from torchtext.legacy import data, datasets, vocab
 
 class PositionalEncoding(nn.Module):
-
+  '''
+  positional encoding solution by:
+  https://github.com/akurniawan/pytorch-transformer/blob/d7e8605bc352ab1f65deecd02287b3cd15781290/src/modules/embedding.py
+  '''
     def __init__(self, d_model, dropout=0.1, max_len=5000):
         super().__init__()
 
@@ -28,6 +31,10 @@ class PositionalEncoding(nn.Module):
         return self.dropout(x)
 
 def sliding_chunks_matmul_qk(q: torch.Tensor, k: torch.Tensor, window: int, padding_value: float):
+'''
+a function for matrix multiplication of the query and key matrices, solution by:
+https://github.com/allenai/longformer/blob/caefee668e39cacdece7dd603a0bebf24df6d8ca/longformer/sliding_chunks.py
+'''
   b, t, h, s = q.size()
 
   assert t % window == 0
@@ -45,6 +52,10 @@ def sliding_chunks_matmul_qk(q: torch.Tensor, k: torch.Tensor, window: int, padd
 
 
 def sliding_chunks_matmul_pv(prob: torch.Tensor, v: torch.Tensor, window: int):
+'''
+A function for matrix multiplication of the for weighted average calculating solution by:
+https://github.com/allenai/longformer/blob/caefee668e39cacdece7dd603a0bebf24df6d8ca/longformer/sliding_chunks.py
+'''
   b, t, h, s = v.size()
   chunk_prob = prob.view(b, t // window, window, h, 3, window)
   chunk_v = v.view(b, t // window, window, h, s)
@@ -58,6 +69,10 @@ def sliding_chunks_matmul_pv(prob: torch.Tensor, v: torch.Tensor, window: int):
 
 
 def invalid_locations_mask(window: int, device: str):
+'''
+A helper function to create a mask for sliding window self-attention
+https://github.com/allenai/longformer/blob/caefee668e39cacdece7dd603a0bebf24df6d8ca/longformer/sliding_chunks.py
+'''
   affected_seq_len = window
   diagonals_list = []
   for j in range(-window, 1):
@@ -71,6 +86,10 @@ def invalid_locations_mask(window: int, device: str):
 
 
 def mask_invalid_locations(input_tensor: torch.Tensor, window: int) -> torch.Tensor:
+  '''
+  A helper function to mask locations, not used in the self-attention layer when using a sliding window attention
+  https://github.com/allenai/longformer/blob/caefee668e39cacdece7dd603a0bebf24df6d8ca/longformer/sliding_chunks.py
+ '''
   affected_seq_len, beginning_mask, ending_mask = invalid_locations_mask(window, input_tensor.device)
   seq_len = input_tensor.size(1)
   beginning_input = input_tensor[:, :affected_seq_len, :, :window+1]
@@ -84,6 +103,12 @@ def mask_invalid_locations(input_tensor: torch.Tensor, window: int) -> torch.Ten
 
 
 class LongSelfAttention(nn.Module):
+'''
+  self-attention layer that uses sliding window attention, insted of regular self-attention
+  following the idea of longformer:
+  https://github.com/allenai/longformer/blob/caefee668e39cacdece7dd603a0bebf24df6d8ca/longformer/longformer.py
+  '''
+
   def __init__(self, layer_id, attention_window: List[int] = None,  embedding_size = 100, num_heads = 8):
     super().__init__()
 
@@ -151,6 +176,12 @@ class LongSelfAttention(nn.Module):
 
 
 class TransformerBlock(nn.Module):
+  '''
+  A transformer block
+
+  following the tutorial:
+  https://github.com/pbloem/former
+  '''
     
     def __init__(self, layer_id,  embedding_size, num_heads, max_length, ff_hidden_mult = 4, dropout = 0.0, attention_window: List[int] = None):
         super().__init__()
@@ -186,7 +217,11 @@ class TransformerBlock(nn.Module):
 
 
 class CTransformer(nn.Module):
-    
+  '''
+  Classification transformer
+  following the tutorial:
+  https://github.com/pbloem/former
+  '''  
     def __init__(self, embedding_size, num_heads, depth, max_length, vocab_size, num_classes, vocab, attention_window,  use_pretrained=True, freeze_emb=False, max_pool = True, dropout = 0.25 ):
         """
         creates a Classification transformer
